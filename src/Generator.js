@@ -6,17 +6,18 @@ const cosX = (x) => Math.cos(x)
 //     return false || a.length > 0
 //   }
 
-  const print = (canvasRef, imageData) => {
+const createLine = (prevY, prevX, x, y, lineWidth, ctx) => {
+  ctx.beginPath();
+  ctx.moveTo(prevX,prevY)
+  ctx.lineWidth = lineWidth
+  ctx.lineTo(x,y)
+  ctx.stroke()
+  return [x, y]
+}    
+
+export const print = (canvasRef, imageData) => {
     const ctx = canvasRef.current.getContext('2d')
     ctx.strokeStyle = "#ff0000"
-    const createLine = (prevY, prevX, x, y, lineWidth) => {
-      ctx.beginPath();
-      ctx.moveTo(prevX,prevY)
-      ctx.lineWidth = lineWidth
-      ctx.lineTo(x,y)
-      ctx.stroke()
-      return [x, y]
-    }    
     const a = 1
     const b = 1
     let prevX = 250
@@ -32,9 +33,25 @@ const cosX = (x) => Math.cos(x)
         const ass = Math.trunc(imageData[index])
         const width = 5.5 - ass/51;
         //console.log(`${width} --- ${ass}`)
-        [prevX, prevY] = createLine(prevY, prevX, x, y, width)
+        [prevX, prevY] = createLine(prevY, prevX, x, y, width, ctx)
       }
     }
   }
 
-  export default print
+  // const createIndex = (x, y) => {
+  //   return Math.trunc(y) * 500 + Math.trunc(x)
+  // }
+
+
+
+  export const printSin = (canvasRef) => {
+    const ctx = canvasRef.current.getContext('2d')
+    let prevX = 1
+    let prevY = 20
+    for(var t = 20; t<500; t=t+20){
+      for(var d = 1; d<500; d=d+0.1){
+        [prevX, prevY] = createLine(prevY, prevX, d, sinX(d*0.7)*10+t, 1, ctx)
+      }
+    }
+    
+  }

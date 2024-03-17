@@ -1,13 +1,14 @@
 import React, { useEffect, useRef } from 'react';
-import print from './Generator';
+import {print, printSin} from './Generator';
+import 'react-image-crop/dist/ReactCrop.css'
 
 let dots = []
 
-const MainCanvas = ({width, height}) => {
+const MainCanvas = ({image, crop, width, height}) => {
     const canvasRef = useRef(null)
-    const inputRef = useRef(null)
 
     const toGrayScale = (r,g,b) => 0.21 * r + 0.72 * g + 0.07 * b;
+
 
     const convertToGrayScales = (ctx, width, height) => {
         const imageData = ctx.getImageData(0,0,width,height)
@@ -30,32 +31,41 @@ const MainCanvas = ({width, height}) => {
         return grayScales
     }
 
-
-    const changeFn = (e) => {
-        const file = e.target.files[0]
-
-        const reader = new FileReader()
-        reader.onload = (event) => {
-            const image = new Image()
-            const ctx = canvasRef.current.getContext('2d')
-            image.onload = () => {
-                ctx.drawImage(image, 0, 0)
-                dots = convertToGrayScales(ctx, 500, 500)
-            }
-            image.src = event.target.result
-        }
-        reader.readAsDataURL(file)
-    }
     useEffect(() => {
-      //print(canvasRef, dots)
-    });
+      const ctx = canvasRef.current.getContext('2d')
+      const cropX = crop.x
+      const cropY = crop.y
+      const centerX = image.naturalWidth / 2
+      const centerY = image.naturalHeight / 2
+      ctx.save()
+      ctx.translate(-cropX, -cropY)
+  // 4) Move the origin to the center of the original position
+    ctx.translate(centerX, centerY)
+  // 1) Move the center of the image to the origin (0,0)
+    ctx.translate(-centerX, -centerY)
+    ctx.drawImage(
+      image,
+      0,
+      0,
+      image.naturalWidth,
+      image.naturalHeight,
+      0,
+      0,
+      image.naturalWidth,
+      image.naturalHeight,
+    )
+    ctx.restore()
+    dots = convertToGrayScales(ctx, 500, 500)
+    }, [crop]);
+
     return(
     <>
       <canvas ref={canvasRef} id="main" width={width} height={height}>x</canvas>
       <p>
-        <input ref={inputRef} type="file" name="picture" onChange={changeFn}/>
         <input type="button" value="спираль" onClick={()=>{console.log(canvasRef)
             print(canvasRef, dots)}}/>
+        <input type="button" value="Sin" onClick={()=>{console.log(canvasRef)
+            printSin(canvasRef)}}/>
       </p>
     </>
     )
